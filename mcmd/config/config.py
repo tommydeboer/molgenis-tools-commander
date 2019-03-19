@@ -9,7 +9,7 @@ from urllib.parse import urljoin
 
 from ruamel.yaml import YAML
 
-from mcmd.utils.errors import ConfigError
+from mcmd.utils.errors import ConfigError, McmdError
 
 _config = None
 _properties_file: Path = None
@@ -93,12 +93,19 @@ def has_option(*args):
 
 
 def set_host(url_):
-    hosts = get('host', 'auth')
-    if url_ in [host_['url'] for host_ in hosts]:
+    if host_exists(url_):
         _config['host']['selected'] = url_
     else:
-        raise ConfigError("There is no host with url {}".format(url_))
+        raise McmdError("There is no host with URL {}".format(url_))
 
+    _persist()
+
+
+def delete_host(url_):
+    if host_exists(url_):
+        del _config['host']['auth'][_get_auth_index(url_)]
+    else:
+        raise McmdError("There is no host with URL {}".format(url_))
     _persist()
 
 
@@ -114,6 +121,10 @@ def add_host(url_, name, pw=None):
 
 def host_exists(url_):
     return url_ in [auth['url'] for auth in _config['host']['auth']]
+
+
+def _get_auth_index(url_):
+    return [i for i, auth in enumerate(_config['host']['auth']) if auth['url'] == url_][0]
 
 
 def _get_selected_host_auth():

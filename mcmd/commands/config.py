@@ -36,6 +36,17 @@ def add_arguments(subparsers):
     p_config_add_host.set_defaults(func=config_add_host,
                                    write_to_history=False)
 
+    p_config_delete = p_config_subparsers.add_parser('delete',
+                                                     help='Delete values in the configuration file')
+    p_config_delete_subparsers = p_config_delete.add_subparsers()
+    p_config_delete_host = p_config_delete_subparsers.add_parser('host',
+                                                                 help='Delete a host')
+    p_config_delete_host.add_argument('url',
+                                      nargs='?',
+                                      help='The URL of the host to delete (Optional)')
+    p_config_delete_host.set_defaults(func=config_delete_host,
+                                      write_to_history=False)
+
 
 # =======
 # Methods
@@ -59,6 +70,22 @@ def config_set_host(args):
 def config_add_host(args):
     url = _add_host()
     _switch_to_new_host(url)
+
+
+@command
+def config_delete_host(args):
+    if args.url:
+        url = args.url
+    else:
+        auths = config.get('host', 'auth')
+        urls = [auth['url'] for auth in auths]
+        url = io.multi_choice('Please select the host you want to delete:', urls)
+
+    if config.url() == url:
+        raise McmdError("Can't delete the currently selected host")
+
+    io.start("Deleting host {}".format(highlight(url)))
+    config.delete_host(url)
 
 
 def _add_host():
