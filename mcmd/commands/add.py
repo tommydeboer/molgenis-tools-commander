@@ -2,7 +2,6 @@ import mimetypes
 import textwrap
 from argparse import RawDescriptionHelpFormatter
 from os import path as os_path
-from pathlib import Path
 from typing import List
 
 from mcmd.commands._registry import arguments
@@ -12,8 +11,8 @@ from mcmd.core.compatibility import version
 from mcmd.core.errors import McmdError
 from mcmd.io import io
 from mcmd.io.io import highlight
-from mcmd.molgenis import api
-from mcmd.molgenis.client import post, get, post_files
+from mcmd.molgenis.service._client import api
+from mcmd.molgenis.service._client.client import post, get, post_files
 from mcmd.molgenis.principals import to_role_name
 from mcmd.utils.file_helpers import get_file_name_from_path, scan_folders_for_files, select_path
 

@@ -3,8 +3,8 @@ from mcmd.core.command import command
 from mcmd.core.errors import McmdError
 from mcmd.io import io
 from mcmd.io.io import highlight
-from mcmd.molgenis import api
-from mcmd.molgenis.client import post, put
+from mcmd.molgenis.service._client import api
+from mcmd.molgenis.service._client.client import post, put
 from mcmd.molgenis.resources import one_resource_exists, ensure_resource_exists, ResourceType
 
 

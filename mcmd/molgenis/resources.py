@@ -1,8 +1,8 @@
 from enum import Enum
 from typing import List
 
-from mcmd.molgenis import api
-from mcmd.molgenis.client import get
+from mcmd.molgenis.service._client import api
+from mcmd.molgenis.service._client.client import get
 from mcmd.io.ask import multi_choice
 from mcmd.io.logging import get_logger
 from mcmd.core.errors import McmdError

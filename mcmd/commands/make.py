@@ -21,12 +21,12 @@ from mcmd.core.compatibility import version
 from mcmd.core.errors import McmdError
 from mcmd.io import io, ask
 from mcmd.io.io import highlight
-from mcmd.molgenis import api
-from mcmd.molgenis.client import post, get, put
+from mcmd.molgenis.service._client import api
+from mcmd.molgenis.service._client.client import post, get, put
 from mcmd.molgenis.principals import to_role_name, get_principal_type_from_args, PrincipalType
-from mcmd.molgenis.rest_api_v2_mapper import map_to_role, map_to_user, map_to_role_membership
-from mcmd.molgenis.system import User, Group, Role, RoleMembership
-from mcmd.molgenis.version import get_version
+from mcmd.molgenis.service.rest_api_v2_mapper import map_to_role, map_to_user, map_to_role_membership
+from mcmd.molgenis.service.system import User, Group, Role, RoleMembership
+from mcmd.molgenis.service.version import get_version
 from mcmd.utils.time import timestamp
 
 

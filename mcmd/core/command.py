@@ -4,7 +4,7 @@ from mcmd.config import config
 from mcmd.core import history
 from mcmd.core.errors import McmdError, ScriptError
 from mcmd.io import io
-from mcmd.molgenis import auth
+from mcmd.molgenis.service import auth
 
 
 class CommandType(Enum):

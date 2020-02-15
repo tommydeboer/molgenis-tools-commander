@@ -4,8 +4,8 @@ from mcmd.core.compatibility import version
 from mcmd.core.errors import McmdError
 from mcmd.io.ask import multi_choice
 from mcmd.io.logging import get_logger
-from mcmd.molgenis import api
-from mcmd.molgenis.client import get
+from mcmd.molgenis.service._client import api
+from mcmd.molgenis.service._client.client import get
 
 log = get_logger()
 

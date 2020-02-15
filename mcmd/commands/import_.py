@@ -14,8 +14,8 @@ from mcmd.core.errors import McmdError
 from mcmd.github import client as github
 from mcmd.io import io
 from mcmd.io.io import highlight
-from mcmd.molgenis import api
-from mcmd.molgenis.client import post_file, get, post
+from mcmd.molgenis.service._client import api
+from mcmd.molgenis.service._client.client import post_file, get, post
 from mcmd.utils.file_helpers import scan_folders_for_files, select_path
 
 # =========
