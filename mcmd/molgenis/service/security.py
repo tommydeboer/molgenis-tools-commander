@@ -160,6 +160,13 @@ def add_role_membership(user: User, role: Role):
     post(api.rest2('sys_sec_RoleMembership'), data=data)
 
 
+def add_token(token: str, user: User):
+    data = {'User': user.id,
+            'token': token}
+
+    post(api.rest1('sys_sec_Token'), data=data)
+
+
 @version('8.1.0')
 def include_group_role(role: Role, group_role: Role):
     if not group_role.group:
