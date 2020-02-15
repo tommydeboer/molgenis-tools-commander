@@ -97,7 +97,7 @@ def test_login_token_invalid_login_page(set_token_mock, host_mock, session, pack
 @pytest.mark.integration
 @patch('mcmd.config.config.set_token')
 def test_as_user(set_token_mock, session, user):
-    run_commander('give {} write sys_set_app'.format(user))
+    run_commander('give --user {} write sys_set_app'.format(user))
     set_token_mock.reset_mock()
 
     run_commander('--as-user {} set app title login5'.format(user))
@@ -113,7 +113,7 @@ def test_as_user(set_token_mock, session, user):
 def test_as_user_with_password(set_token_mock, session):
     name = random_name()
     run_commander('add user {} --set-password test'.format(name))
-    run_commander('give {} write sys_set_app'.format(name))
+    run_commander('give --user {} write sys_set_app'.format(name))
     set_token_mock.reset_mock()
 
     run_commander('--as-user {} --with-password test set app title login5'.format(name))

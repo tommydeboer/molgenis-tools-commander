@@ -9,14 +9,13 @@ from urllib.parse import urljoin
 
 from mcmd.commands._registry import arguments
 from mcmd.core.command import command
-from mcmd.core.errors import McmdError
 from mcmd.io import io
 from mcmd.io.io import highlight
+from mcmd.molgenis.resources import detect_resource_type, ensure_resource_exists, ResourceType
+from mcmd.molgenis.service import security
 from mcmd.molgenis.service._client import api
 from mcmd.molgenis.service._client.client import post_form
-from mcmd.molgenis.principals import PrincipalType, get_principal_type_from_args
-from mcmd.molgenis.service.security import transform_role_name
-from mcmd.molgenis.resources import detect_resource_type, ensure_resource_exists, ResourceType
+from mcmd.molgenis.service.system import Principal, User, Role
 
 
 # =========
@@ -97,29 +96,33 @@ def give(args):
 
     # The PermissionManagerController always gives 200 OK so we need to validate everything ourselves
     resource_type = _get_resource_type(args)
-    principal_type = get_principal_type_from_args(args, principal_name=args.receiver)
+    principal = security.get_principal(is_user=args.user,
+                                       is_role=args.role,
+                                       principal_name=args.receiver)
 
-    _grant(principal_type, args.receiver, resource_type, args.resource, args.permission)
+    _grant(principal, resource_type, args.resource, args.permission)
 
 
-def _grant(principal_type, principal_name, resource_type, identifier, permission):
+def _grant(principal: Principal, resource_type, identifier, permission):
     data = {'radio-' + identifier: permission}
 
-    if principal_type == PrincipalType.USER:
+    if isinstance(principal, User):
+        # TODO use upcoming principal.name
+        principal_name = principal.username
         data['username'] = principal_name
-    elif principal_type == PrincipalType.ROLE:
-        principal_name = transform_role_name(principal_name)
+    elif isinstance(principal, Role):
+        principal_name = principal.name
         data['rolename'] = principal_name
     else:
-        raise McmdError('Unknown principal type: %s' % principal_type)
+        raise ValueError("unknown principal type")
 
-    io.start('Giving %s %s permission to %s on %s %s' % (principal_type.value,
-                                                         highlight(principal_name),
-                                                         highlight(permission),
-                                                         resource_type.get_label().lower(),
-                                                         highlight(identifier)))
+    io.start('Giving {} {} permission to {} on {} {}'.format(principal.meta.name.lower(),
+                                                             highlight(principal_name),
+                                                             highlight(permission),
+                                                             resource_type.get_label().lower(),
+                                                             highlight(identifier)))
 
-    url = urljoin(api.permissions(), '{}/{}'.format(resource_type.get_resource_name(), principal_type.value))
+    url = urljoin(api.permissions(), '{}/{}'.format(resource_type.get_resource_name(), principal.meta.name.lower()))
     post_form(url, data)
 
 

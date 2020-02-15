@@ -18,10 +18,9 @@ from mcmd.core.compatibility import version
 from mcmd.core.errors import McmdError
 from mcmd.io import io, ask
 from mcmd.io.io import highlight
-from mcmd.molgenis.principals import get_principal_type_from_args, PrincipalType
-from mcmd.molgenis.service.security import transform_role_name
 from mcmd.molgenis.service import security
-from mcmd.molgenis.service.system import User, Group, Role
+from mcmd.molgenis.service.security import transform_role_name
+from mcmd.molgenis.service.system import User, Group, Role, Principal
 from mcmd.molgenis.service.version import get_version
 
 
@@ -81,15 +80,13 @@ def add_arguments(subparsers):
 def make(args):
     role_name = transform_role_name(args.target_role)
     role = security.get_role(role_name)
-    subject_type = _get_subject_type(args)
-    if subject_type == PrincipalType.USER:
-        user = security.get_user(args.subject)
+    subject = _get_subject(args)
+    if isinstance(subject, User):
         if role.group:
-            _make_member_of_group_role(user, role)
+            _make_member_of_group_role(subject, role)
         else:
-            _make_member_of_role(role, user)
-    elif subject_type == PrincipalType.ROLE:
-        subject = security.get_role(args.subject)
+            _make_member_of_role(role, subject)
+    elif isinstance(subject, Role):
         _include_group_role(subject, role)
     else:
         raise ValueError("Unknown principal type")
@@ -97,7 +94,7 @@ def make(args):
 
 # noinspection PyUnusedLocal
 @version('7.0.0')
-def _get_subject_type(args) -> PrincipalType:
+def _get_subject(args) -> Principal:
     """
     Prior to 8.1 roles can't be included with the identities API so the subject is always a user.
     """
@@ -105,15 +102,17 @@ def _get_subject_type(args) -> PrincipalType:
         raise McmdError(
             "Including group roles is only possible in MOLGENIS 8.3 and up (you are using {})".format(get_version()))
     else:
-        return PrincipalType.USER
+        return security.get_user(args.subject)
 
 
 @version('8.1.0')
-def _get_subject_type(args) -> PrincipalType:
+def _get_subject(args) -> Principal:
     """
     From 8.3 and up, group roles can be included with the identities API so the subject can be a user or a role.
     """
-    return get_principal_type_from_args(args, principal_name=args.subject)
+    return security.get_principal(is_user=args.user,
+                                  is_role=args.role,
+                                  principal_name=args.subject)
 
 
 def _make_member_of_group_role(user: User, role: Role):
