@@ -3,7 +3,7 @@ import json
 import requests
 
 from mcmd.molgenis.service import auth
-from mcmd.molgenis.service._client import request
+from mcmd.molgenis.service._client.request_handler import request
 
 
 @request

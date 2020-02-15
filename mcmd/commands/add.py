@@ -2,18 +2,17 @@ import mimetypes
 import textwrap
 from argparse import RawDescriptionHelpFormatter
 from os import path as os_path
-from typing import List
 
 from mcmd.commands._registry import arguments
-from mcmd.core.context import context
 from mcmd.core.command import command
-from mcmd.core.compatibility import version
+from mcmd.core.context import context
 from mcmd.core.errors import McmdError
 from mcmd.io import io
 from mcmd.io.io import highlight
+from mcmd.molgenis.service import security
 from mcmd.molgenis.service._client import api
 from mcmd.molgenis.service._client.client import post, get, post_files
-from mcmd.molgenis.principals import to_role_name
+from mcmd.molgenis.service.security import transform_role_name
 from mcmd.utils.file_helpers import get_file_name_from_path, scan_folders_for_files, select_path
 
 # Store a reference to the parser so that we can show an error message for the custom validation rule
@@ -165,84 +164,28 @@ def add_user(args):
     superuser = args.is_superuser
     ch_pwd = args.change_password
 
-    post(api.rest1('sys_sec_User'),
-         data={'username': args.username,
-               'password_': password,
-               'changePassword': ch_pwd,
-               'Email': email,
-               'active': active,
-               'superuser': superuser
-               })
+    security.add_user(username=args.username,
+                      email=email,
+                      password=password,
+                      change_password=ch_pwd,
+                      active=active,
+                      superuser=superuser)
 
 
 @command
 def add_role(args):
-    role_name = to_role_name(args.rolename)
-    io.start('Adding role {}'.format(highlight(role_name)))
+    io.start('Adding role {}'.format(transform_role_name(args.rolename)))
 
-    role = {'name': role_name,
-            'label': role_name}
+    included_roles = security.get_roles(args.includes) if args.includes else []
+    group = security.get_group(args.group) if args.group else None
 
-    if args.includes:
-        role_names = [to_role_name(name) for name in args.includes]
-        role['includes'] = _get_role_ids(role_names)
-
-    if args.group:
-        group_name = _to_group_name(args.group)
-        role['group'] = _get_group_id(group_name)
-
-    data = {'entities': [role]}
-    post(api.rest2('sys_sec_Role'), data=data)
-
-
-def _get_group_id(group_name) -> str:
-    groups = get(api.rest2('sys_sec_Group'),
-                 params={
-                     'attrs': 'id',
-                     'q': 'name=={}'.format(group_name)
-                 }).json()['items']
-    if len(groups) == 0:
-        raise McmdError('No group found with name {}'.format(groups))
-    else:
-        return groups[0]['id']
-
-
-def _get_role_ids(role_names) -> List[str]:
-    roles = get(api.rest2('sys_sec_Role'),
-                params={
-                    'attrs': 'id,name',
-                    'q': 'name=in=({})'.format(','.join(role_names))
-                }).json()['items']
-
-    name_to_id = {role['name']: role['id'] for role in roles}
-    not_found = list()
-    for role_name in role_names:
-        if role_name not in name_to_id:
-            not_found.append(role_name)
-
-    if len(not_found) > 0:
-        raise McmdError("Couldn't find role(s) {}".format(' and '.join(not_found)))
-    else:
-        return list(name_to_id.values())
+    security.add_role(name=args.rolename, group=group, includes=included_roles)
 
 
 @command
 def add_group(args):
-    group_name = _to_group_name(args.name)
-    io.start('Adding group %s' % highlight(group_name))
-    post(api.group(), data={'name': group_name, 'label': args.name})
-
-
-@version('7.0.0')
-def _to_group_name(group_input: str):
-    """Before 8.3.0 all group names are lower case."""
-    return group_input.lower()
-
-
-@version('8.3.0')
-def _to_group_name(group_input: str):
-    """Since 8.3.0 group names are case sensitive."""
-    return group_input
+    io.start('Adding group %s' % highlight(security.transform_group_name(args.name)))
+    security.add_group(args.name)
 
 
 @command
