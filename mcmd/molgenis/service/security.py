@@ -4,10 +4,11 @@ from urllib.parse import urljoin
 
 from mcmd.core.compatibility import version
 from mcmd.core.errors import McmdError
+from mcmd.io import ask
 from mcmd.molgenis.service._client import api
 from mcmd.molgenis.service._client.client import get, post, put
 from mcmd.molgenis.service.rest_api_v2_mapper import map_to_role, map_to_user, map_to_role_membership, map_to_group
-from mcmd.molgenis.service.system import Group, Role, User, RoleMembership
+from mcmd.molgenis.service.system import Group, Role, User, RoleMembership, Principal
 from mcmd.utils.time import timestamp
 
 
@@ -34,7 +35,43 @@ def is_member(user: User, role: Role) -> bool:
     return len(memberships) > 0
 
 
+def get_principal(is_user: bool, is_role: bool, principal_name: str) -> Principal:
+    if is_user and is_role:
+        raise ValueError("invalid arguments: is_user & is_role")
+
+    if is_user:
+        return get_user(principal_name)
+    elif is_role:
+        return get_role(principal_name)
+    else:
+        return _detect_principal(principal_name)
+
+
+def _detect_principal(principal_name: str) -> Principal:
+    user = _get_user(principal_name)
+    role = _get_role(principal_name)
+
+    if user and role:
+        choices = ['User', 'Role']
+        answer = ask.multi_choice('Multiple principals found with name {}. Choose one:'.format(principal_name), choices)
+        return user if answer == 'User' else role
+    elif user:
+        return user
+    elif role:
+        return role
+    else:
+        raise McmdError('No principals found with name {}'.format(principal_name))
+
+
 def get_user(user_name: str) -> User:
+    user = _get_user(user_name)
+    if not user:
+        raise McmdError('Unknown user {}'.format(user_name))
+    else:
+        return user
+
+
+def _get_user(user_name: str) -> Optional[User]:
     users = get(api.rest2('sys_sec_User'),
                 params={
                     'attrs': 'id,username,changePassword,Email,active,superuser,password_',
@@ -42,12 +79,21 @@ def get_user(user_name: str) -> User:
                 }).json()['items']
 
     if len(users) == 0:
-        raise McmdError('Unknown user {}'.format(user_name))
+        return None
     else:
         return map_to_user(users[0])
 
 
 def get_role(role_name: str) -> Role:
+    role = _get_role(role_name)
+    if not role:
+        raise McmdError('No role found with name {}'.format(transform_role_name(role_name)))
+    else:
+        return role
+
+
+def _get_role(role_name: str) -> Optional[Role]:
+    role_name = transform_role_name(role_name)
     roles = get(api.rest2('sys_sec_Role'),
                 params={
                     'attrs': 'id,name,label,group(id,name)',
@@ -55,7 +101,7 @@ def get_role(role_name: str) -> Role:
                 }).json()['items']
 
     if len(roles) == 0:
-        raise McmdError('No role found with name {}'.format(role_name))
+        return None
     else:
         return map_to_role(roles[0])
 
