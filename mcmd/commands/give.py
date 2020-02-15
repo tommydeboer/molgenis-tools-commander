@@ -14,8 +14,8 @@ from mcmd.io import io
 from mcmd.io.io import highlight
 from mcmd.molgenis.service._client import api
 from mcmd.molgenis.service._client.client import post_form
-from mcmd.molgenis.principals import PrincipalType, to_role_name, \
-    get_principal_type_from_args
+from mcmd.molgenis.principals import PrincipalType, get_principal_type_from_args
+from mcmd.molgenis.service.security import transform_role_name
 from mcmd.molgenis.resources import detect_resource_type, ensure_resource_exists, ResourceType
 
 
@@ -108,7 +108,7 @@ def _grant(principal_type, principal_name, resource_type, identifier, permission
     if principal_type == PrincipalType.USER:
         data['username'] = principal_name
     elif principal_type == PrincipalType.ROLE:
-        principal_name = to_role_name(principal_name)
+        principal_name = transform_role_name(principal_name)
         data['rolename'] = principal_name
     else:
         raise McmdError('Unknown principal type: %s' % principal_type)
