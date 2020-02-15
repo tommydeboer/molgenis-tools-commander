@@ -11,7 +11,7 @@ from mcmd.io import io
 from mcmd.io.io import highlight
 from mcmd.molgenis.service import security
 from mcmd.molgenis.service._client import api
-from mcmd.molgenis.service._client.client import post, get, post_files
+from mcmd.molgenis.service._client.client import post, post_files
 from mcmd.molgenis.service.security import transform_role_name
 from mcmd.utils.file_helpers import get_file_name_from_path, scan_folders_for_files, select_path
 
@@ -204,21 +204,8 @@ def add_package(args):
 @command
 def add_token(args):
     io.start('Adding token %s for user %s' % (highlight(args.token), highlight(args.user)))
-
-    user = get(api.rest2('sys_sec_User'),
-               params={
-                   'attrs': 'id',
-                   'q': 'username=={}'.format(args.user)
-               })
-    if user.json()['total'] == 0:
-        raise McmdError('Unknown user %s' % args.user)
-
-    user_id = user.json()['items'][0]['id']
-
-    data = {'User': user_id,
-            'token': args.token}
-
-    post(api.rest1('sys_sec_Token'), data=data)
+    user = security.get_user(args.user)
+    security.add_token(args.token, user)
 
 
 @command
