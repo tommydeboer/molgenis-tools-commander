@@ -5,7 +5,7 @@ from mcmd.commands._registry import arguments
 from mcmd.core.command import command
 from mcmd.core.errors import McmdError
 from mcmd.io.io import highlight
-from mcmd.molgenis import version as molgenis_version
+from mcmd.molgenis.service import version as molgenis_version
 
 
 # =========

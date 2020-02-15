@@ -12,8 +12,8 @@ from mcmd.core.command import command
 from mcmd.core.errors import McmdError
 from mcmd.io import io
 from mcmd.io.io import highlight
-from mcmd.molgenis import api
-from mcmd.molgenis.client import post_form
+from mcmd.molgenis.service._client import api
+from mcmd.molgenis.service._client.client import post_form
 from mcmd.molgenis.principals import PrincipalType, to_role_name, \
     get_principal_type_from_args
 from mcmd.molgenis.resources import detect_resource_type, ensure_resource_exists, ResourceType

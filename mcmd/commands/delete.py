@@ -1,12 +1,12 @@
 from urllib.parse import urljoin
 
 import mcmd.io.ask
-import mcmd.molgenis.client as client
+import mcmd.molgenis.service._client.client as client
 from mcmd.commands._registry import arguments
 from mcmd.core.command import command
 from mcmd.io import io
 from mcmd.io.io import highlight
-from mcmd.molgenis import api
+from mcmd.molgenis.service._client import api
 from mcmd.molgenis.resources import detect_resource_type, ensure_resource_exists, ResourceType
 
 
