@@ -1,7 +1,7 @@
 from enum import Enum
 
-from mcmd.molgenis.service._client import permission_manager
 from mcmd.molgenis.model.system import User, Role, Principal, PermissableResource, EntityType, Package, Plugin, Entity
+from mcmd.molgenis.service._client import permission_manager
 
 
 class Permission(Enum):
@@ -71,3 +71,11 @@ def give_role_plugin_permission(role: Role, permission: Permission, plugin: Plug
 # noinspection PyUnusedLocal
 def give_role_entity_permission(role: Role, permission: Permission, entity: Entity):
     raise NotImplementedError('row level permissions not yet implemented')
+
+
+def enable_row_level_security(entity_type: EntityType):
+    permission_manager.enable_row_level_security(entity_type)
+
+
+def disable_row_level_security(entity_type: EntityType):
+    permission_manager.disable_row_level_security(entity_type)
