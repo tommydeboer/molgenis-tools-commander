@@ -2,11 +2,12 @@ from unittest.mock import patch
 
 import pytest
 
+from mcmd.molgenis.service.system import Role, RoleMembership, User
 from tests.integration.utils import run_commander, random_name
 
 
 def _get_user_id(username, session):
-    return session.get('sys_sec_User', q=[{
+    return session.get(User.meta.id, q=[{
         'field': 'username',
         'operator': 'EQUALS',
         'value': username
@@ -18,7 +19,7 @@ def _get_role_id(rolename, session):
 
 
 def _get_role_by_name(rolename, session):
-    return session.get('sys_sec_Role',
+    return session.get(Role.meta.id,
                        q=[{
                            'field': 'name',
                            'operator': 'EQUALS',
@@ -28,7 +29,7 @@ def _get_role_by_name(rolename, session):
 
 
 def _get_memberships_by_username(username, session):
-    memberships = session.get('sys_sec_RoleMembership',
+    memberships = session.get(RoleMembership.meta.id,
                               q=[{
                                   'field': 'user',
                                   'operator': 'EQUALS',
@@ -39,7 +40,7 @@ def _get_memberships_by_username(username, session):
 
 
 def _get_memberships_by_user_and_role(username, rolename, session):
-    memberships = session.get('sys_sec_RoleMembership',
+    memberships = session.get(RoleMembership.meta.id,
                               q=[{
                                   'field': 'user',
                                   'operator': 'EQUALS',

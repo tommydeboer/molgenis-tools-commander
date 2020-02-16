@@ -4,6 +4,7 @@ import molgenis.client
 import pytest
 from requests import HTTPError
 
+from mcmd.molgenis.service.system import User
 from tests.integration.loader_mock import get_host
 from tests.integration.utils import run_commander, random_name
 
@@ -33,7 +34,7 @@ def test_add_user(session):
 
     assert _user_can_login(name, name)
 
-    result = session.get('sys_sec_User', q=_user_by_name_query(name))
+    result = session.get(User.meta.id, q=_user_by_name_query(name))
     assert len(result) == 1
 
     user = result[0]
@@ -50,7 +51,7 @@ def test_add_user_email(session):
 
     assert _user_can_login(name, name)
 
-    result = session.get('sys_sec_User', q=_user_by_name_query(name))
+    result = session.get(User.meta.id, q=_user_by_name_query(name))
     assert len(result) == 1
 
     user = result[0]
@@ -67,7 +68,7 @@ def test_add_user_superuser_change_password(session):
 
     assert _user_can_login(name, name) is False
 
-    result = session.get('sys_sec_User', q=_user_by_name_query(name))
+    result = session.get(User.meta.id, q=_user_by_name_query(name))
     assert len(result) == 1
 
     user = result[0]
@@ -84,7 +85,7 @@ def test_add_user_inactive(session):
 
     assert _user_can_login(name, name) is False
 
-    result = session.get('sys_sec_User', q=_user_by_name_query(name))
+    result = session.get(User.meta.id, q=_user_by_name_query(name))
     assert len(result) == 1
 
     user = result[0]
@@ -102,7 +103,7 @@ def test_add_user_set_password(session):
 
     assert _user_can_login(name, password)
 
-    result = session.get('sys_sec_User', q=_user_by_name_query(name))
+    result = session.get(User.meta.id, q=_user_by_name_query(name))
     assert len(result) == 1
 
     user = result[0]

@@ -1,5 +1,6 @@
 import pytest
 
+from mcmd.molgenis.service.system import Package
 from tests.integration.utils import run_commander, random_name
 
 
@@ -8,7 +9,7 @@ def test_add_package(session):
     name = random_name()
     run_commander('add package {}'.format(name))
 
-    package = session.get_by_id('sys_md_Package', name)
+    package = session.get_by_id(Package.meta.id, name)
     assert 'parent' not in package
 
 
@@ -19,5 +20,5 @@ def test_add_package_in_package(session):
     run_commander('add package {}'.format(name1))
     run_commander('add package {} --in {}'.format(name2, name1))
 
-    package = session.get_by_id('sys_md_Package', name2, expand=['parent'])
+    package = session.get_by_id(Package.meta.id, name2, expand=['parent'])
     assert package['parent']['id'] == name1

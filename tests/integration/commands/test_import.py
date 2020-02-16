@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
+from mcmd.molgenis.service.system import EntityType, Package
 from tests.integration.loader_mock import get_dataset_folder
 from tests.integration.utils import run_commander, run_commander_fail, random_name, get_test_context
 
@@ -22,7 +23,7 @@ def test_import_emx(session):
     assert len(result) > 0
 
     # cleanup
-    session.delete('sys_md_Package', 'it')
+    session.delete(Package.meta.id, 'it')
 
 
 @pytest.mark.integration
@@ -44,7 +45,7 @@ def test_import_vcf(session):
     assert len(result) == 5
 
     # cleanup
-    session.delete('sys_md_EntityType', 'testvcf')
+    session.delete(EntityType.meta.id, 'testvcf')
 
 
 @pytest.mark.integration
@@ -70,7 +71,7 @@ def test_import_from_path(session):
     assert len(result) > 0
 
     # cleanup
-    session.delete('sys_md_Package', 'it')
+    session.delete(Package.meta.id, 'it')
 
 
 @pytest.mark.integration
@@ -98,11 +99,11 @@ def test_import_from_issue(which_file_question, session):
     issue_num = 5693
     run_commander('import --from-issue {}'.format(issue_num))
 
-    session.get_by_id('sys_md_Package', 'test')
+    session.get_by_id(Package.meta.id, 'test')
 
     # cleanup
     get_test_context().get_issues_folder().joinpath(str(issue_num)).joinpath(file_name).unlink()
-    session.delete('sys_md_Package', 'test')
+    session.delete(Package.meta.id, 'test')
 
 
 @pytest.mark.integration
@@ -111,11 +112,11 @@ def test_import_from_issue_named(session):
     issue_num = 5693
     run_commander('import --from-issue {} {}'.format(issue_num, file_name))
 
-    session.get_by_id('sys_md_Package', 'test')
+    session.get_by_id(Package.meta.id, 'test')
 
     # cleanup
     get_test_context().get_issues_folder().joinpath(str(issue_num)).joinpath(file_name).unlink()
-    session.delete('sys_md_Package', 'test')
+    session.delete(Package.meta.id, 'test')
 
 
 @pytest.mark.integration
@@ -123,10 +124,10 @@ def test_import_from_url(session):
     file_url = 'https://github.com/molgenis/molgenis/files/626894/emx_package-only.xlsx'
     run_commander('import --from-url {}'.format(file_url))
 
-    session.get_by_id('sys_md_Package', 'test')
+    session.get_by_id(Package.meta.id, 'test')
 
     # cleanup
-    session.delete('sys_md_Package', 'test')
+    session.delete(Package.meta.id, 'test')
 
 
 @pytest.mark.integration

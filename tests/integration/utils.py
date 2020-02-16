@@ -5,6 +5,7 @@ import pytest
 from requests import HTTPError
 
 from mcmd.__main__ import start
+from mcmd.molgenis.service.system import Package
 from tests.integration.test_context import TestContext
 
 """
@@ -51,7 +52,7 @@ def entity_type_exists(session, id_):
 
 def package_exists(session, id_):
     try:
-        session.get_by_id('sys_md_Package', id_)
+        session.get_by_id(Package.meta.id, id_)
     except HTTPError:
         return False
     return True

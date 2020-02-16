@@ -1,5 +1,6 @@
 import pytest
 
+from mcmd.molgenis.service.system import Package
 from tests.integration.utils import run_commander, entity_type_exists, package_exists
 
 
@@ -11,8 +12,8 @@ def test_run(session):
         assert entity_type_exists(session, 'scripttest_testAutoId')
         assert package_exists(session, 'otherpackage')
     finally:
-        session.delete('sys_md_Package', 'scripttest')
-        session.delete('sys_md_Package', 'otherpackage')
+        session.delete(Package.meta.id, 'scripttest')
+        session.delete(Package.meta.id, 'otherpackage')
 
 
 @pytest.mark.integration
@@ -23,7 +24,7 @@ def test_run_from_line(session):
         assert not package_exists(session, 'scripttest')
         assert package_exists(session, 'otherpackage')
     finally:
-        session.delete('sys_md_Package', 'otherpackage')
+        session.delete(Package.meta.id, 'otherpackage')
 
 
 @pytest.mark.integration
@@ -35,7 +36,7 @@ def test_run_error(session):
         assert package_exists(session, 'scripttest')
         assert not package_exists(session, 'package_after_error')
     finally:
-        session.delete('sys_md_Package', 'scripttest')
+        session.delete(Package.meta.id, 'scripttest')
 
 
 @pytest.mark.integration
@@ -46,8 +47,8 @@ def test_run_ignore_error(session):
         assert package_exists(session, 'scripttest')
         assert package_exists(session, 'package_after_error')
     finally:
-        session.delete('sys_md_Package', 'scripttest')
-        session.delete('sys_md_Package', 'package_after_error')
+        session.delete(Package.meta.id, 'scripttest')
+        session.delete(Package.meta.id, 'package_after_error')
 
 
 @pytest.mark.integration

@@ -15,6 +15,8 @@ from mcmd.molgenis.service._client.client import get, put
 # =========
 # Arguments
 # =========
+from mcmd.molgenis.service.system import EntityType
+
 
 @arguments('set')
 def add_arguments(subparsers):
@@ -87,7 +89,7 @@ def set_(args):
 
 
 def _get_settings():
-    molgenis_settings = get(api.rest2('sys_md_EntityType'),
+    molgenis_settings = get(api.rest2(EntityType.meta.id),
                             params={
                                 'q': 'extends==sys_set_settings',
                                 'attrs': '~id'

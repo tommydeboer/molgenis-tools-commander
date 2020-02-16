@@ -13,6 +13,7 @@ from mcmd.molgenis.resources import detect_resource_type, ensure_resource_exists
 # =========
 # Arguments
 # =========
+from mcmd.molgenis.service.system import EntityType, Package
 
 
 @arguments('delete')
@@ -82,7 +83,7 @@ def _delete_entity_type(args):
     if args.force or (not args.force and mcmd.io.ask.confirm(
             'Are you sure you want to delete entity type {} including its data?'.format(args.resource))):
         io.start('Deleting entity type {}'.format(highlight(args.resource)))
-        _delete_rows(ResourceType.ENTITY_TYPE.get_entity_id(), [args.resource])
+        _delete_rows(EntityType.meta.id, [args.resource])
 
 
 def _delete_entity_type_data(args):
@@ -109,7 +110,7 @@ def _delete_package(args):
     if args.force or (not args.force and mcmd.io.ask.confirm(
             'Are you sure you want to delete package {} and all of its contents?'.format(args.resource))):
         io.start('Deleting package {}'.format(highlight(args.resource)))
-        _delete_rows(ResourceType.PACKAGE.get_entity_id(), [args.resource])
+        _delete_rows(Package.meta.id, [args.resource])
 
 
 def _delete_package_contents(args):
@@ -121,25 +122,25 @@ def _delete_package_contents(args):
 
 
 def _delete_entity_types_in_package(package_id):
-    response = client.get(api.rest2(ResourceType.ENTITY_TYPE.get_entity_id()),
+    response = client.get(api.rest2(EntityType.meta.id),
                           params={
                               'attrs': 'id',
                               'q': 'package==' + package_id
                           })
     entity_ids = [entity_type['id'] for entity_type in response.json()['items']]
     if len(entity_ids) > 0:
-        _delete_rows(ResourceType.ENTITY_TYPE.get_entity_id(), entity_ids)
+        _delete_rows(EntityType.meta.id, entity_ids)
 
 
 def _delete_packages_in_package(package_id):
-    response = client.get(api.rest2(ResourceType.PACKAGE.get_entity_id()),
+    response = client.get(api.rest2(Package.meta.id),
                           params={
                               'attrs': 'id',
                               'q': 'parent==' + package_id
                           })
     package_ids = [entity_type['id'] for entity_type in response.json()['items']]
     if len(package_ids) > 0:
-        _delete_rows(ResourceType.PACKAGE.get_entity_id(), package_ids)
+        _delete_rows(Package.meta.id, package_ids)
 
 
 def _delete_group(args):

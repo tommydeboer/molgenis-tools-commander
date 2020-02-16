@@ -13,7 +13,7 @@ from mcmd.utils.time import timestamp
 
 
 def get_group_roles(group: Group) -> List[Role]:
-    roles = get(api.rest2('sys_sec_Role'),
+    roles = get(api.rest2(Role.meta.id),
                 params={
                     'attrs': 'id,name,label,group(id,name)',
                     'q': 'group=={}'.format(group.id)
@@ -26,7 +26,7 @@ def get_group_roles(group: Group) -> List[Role]:
 
 
 def is_member(user: User, role: Role) -> bool:
-    memberships = get(api.rest2('sys_sec_RoleMembership'),
+    memberships = get(api.rest2(RoleMembership.meta.id),
                       params={
                           'attrs': 'id',
                           'q': "user=={};role=={};(to=='',to=ge={})".format(user.id, role.id, timestamp())
@@ -72,7 +72,7 @@ def get_user(user_name: str) -> User:
 
 
 def _get_user(user_name: str) -> Optional[User]:
-    users = get(api.rest2('sys_sec_User'),
+    users = get(api.rest2(User.meta.id),
                 params={
                     'attrs': 'id,username,changePassword,Email,active,superuser,password_',
                     'q': 'username=={}'.format(user_name)
@@ -94,7 +94,7 @@ def get_role(role_name: str) -> Role:
 
 def _get_role(role_name: str) -> Optional[Role]:
     role_name = transform_role_name(role_name)
-    roles = get(api.rest2('sys_sec_Role'),
+    roles = get(api.rest2(Role.meta.id),
                 params={
                     'attrs': 'id,name,label,group(id,name)',
                     'q': 'name=={}'.format(role_name)
@@ -108,7 +108,7 @@ def _get_role(role_name: str) -> Optional[Role]:
 
 def get_roles(role_names: List[str]) -> List[Role]:
     role_names = [transform_role_name(name) for name in role_names]
-    roles = get(api.rest2('sys_sec_Role'),
+    roles = get(api.rest2(Role.meta.id),
                 params={
                     'attrs': 'id,name,label',
                     'q': 'name=in=({})'.format(','.join(role_names))
@@ -128,7 +128,7 @@ def get_roles(role_names: List[str]) -> List[Role]:
 
 def get_group(group_name: str) -> Group:
     group_name = transform_group_name(group_name)
-    groups = get(api.rest2('sys_sec_Group'),
+    groups = get(api.rest2(Group.meta.id),
                  params={
                      'attrs': 'id,name',
                      'q': 'name=={}'.format(group_name)
@@ -143,7 +143,7 @@ def get_group_membership(user: User, group: Group) -> Optional[RoleMembership]:
     group_roles = get_group_roles(group)
     group_role_ids = [role.id for role in group_roles]
 
-    memberships = get(api.rest2('sys_sec_RoleMembership'),
+    memberships = get(api.rest2(RoleMembership.meta.id),
                       params={
                           'attrs': 'id,user(id,username),role(id,name,label,group(id,name))',
                           'q': "user=={};role=in=({});(to=='',to=ge={})".format(user.id, ','.join(group_role_ids),
@@ -157,7 +157,7 @@ def get_group_membership(user: User, group: Group) -> Optional[RoleMembership]:
 
 
 def add_user(username: str, email: str, password: str, change_password: bool, active: bool, superuser: bool):
-    post(api.rest1('sys_sec_User'),
+    post(api.rest1(User.meta.id),
          data={'username': username,
                'Email': email,
                'password_': password,
@@ -177,7 +177,7 @@ def add_role(name: str, group: Optional[Group], includes: List[Role]):
     new_role['includes'] = [role.id for role in includes]
 
     data = {'entities': [new_role]}
-    post(api.rest2('sys_sec_Role'), data=data)
+    post(api.rest2(Role.meta.id), data=data)
 
 
 def add_group(group_name: str):
@@ -203,7 +203,7 @@ def add_role_membership(user: User, role: Role):
                   'role': role.id,
                   'from': timestamp()}
     data = {'entities': [membership]}
-    post(api.rest2('sys_sec_RoleMembership'), data=data)
+    post(api.rest2(RoleMembership.meta.id), data=data)
 
 
 def add_token(token: str, user: User):

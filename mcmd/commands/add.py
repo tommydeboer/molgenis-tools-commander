@@ -13,6 +13,7 @@ from mcmd.molgenis.service import security
 from mcmd.molgenis.service._client import api
 from mcmd.molgenis.service._client.client import post, post_files
 from mcmd.molgenis.service.security import transform_role_name
+from mcmd.molgenis.service.system import Package
 from mcmd.utils.file_helpers import get_file_name_from_path, scan_folders_for_files, select_path
 
 # Store a reference to the parser so that we can show an error message for the custom validation rule
@@ -198,7 +199,7 @@ def add_package(args):
     if args.parent:
         data['parent'] = args.parent
 
-    post(api.rest1('sys_md_Package'), data=data)
+    post(api.rest1(Package.meta.id), data=data)
 
 
 @command
