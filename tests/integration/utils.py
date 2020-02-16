@@ -5,7 +5,7 @@ import pytest
 from requests import HTTPError
 
 from mcmd.__main__ import start
-from mcmd.molgenis.service.system import Package
+from mcmd.molgenis.model.system import Package
 from tests.integration.test_context import TestContext
 
 """

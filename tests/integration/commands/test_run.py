@@ -1,6 +1,6 @@
 import pytest
 
-from mcmd.molgenis.service.system import Package
+from mcmd.molgenis.model.system import Package
 from tests.integration.utils import run_commander, entity_type_exists, package_exists
 
 

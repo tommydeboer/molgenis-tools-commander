@@ -2,7 +2,7 @@
 Maps json items from the REST API v2 to value objects from the 'system' module.
 """
 
-from mcmd.molgenis.service.system import Role, Group, User, RoleMembership
+from mcmd.molgenis.model.system import Role, Group, User, RoleMembership
 
 
 def map_to_role(role: dict) -> Role:

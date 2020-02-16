@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from mcmd.molgenis.service.system import EntityType, Package
+from mcmd.molgenis.model.system import EntityType, Package
 from tests.integration.loader_mock import get_dataset_folder
 from tests.integration.utils import run_commander, run_commander_fail, random_name, get_test_context
 

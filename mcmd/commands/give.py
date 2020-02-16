@@ -15,7 +15,7 @@ from mcmd.molgenis.resources import detect_resource_type, ensure_resource_exists
 from mcmd.molgenis.service import security
 from mcmd.molgenis.service._client import api
 from mcmd.molgenis.service._client.client import post_form
-from mcmd.molgenis.service.system import Principal, User, Role
+from mcmd.molgenis.model.system import Principal, User, Role
 
 
 # =========

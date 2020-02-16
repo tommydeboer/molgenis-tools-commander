@@ -15,7 +15,7 @@ from mcmd.molgenis.service._client.client import get, put
 # =========
 # Arguments
 # =========
-from mcmd.molgenis.service.system import EntityType
+from mcmd.molgenis.model.system import EntityType
 
 
 @arguments('set')

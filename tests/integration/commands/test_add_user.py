@@ -4,7 +4,7 @@ import molgenis.client
 import pytest
 from requests import HTTPError
 
-from mcmd.molgenis.service.system import User
+from mcmd.molgenis.model.system import User
 from tests.integration.loader_mock import get_host
 from tests.integration.utils import run_commander, random_name
 

@@ -1,6 +1,6 @@
 import pytest
 
-from mcmd.molgenis.service.system import Group
+from mcmd.molgenis.model.system import Group
 from tests.integration.utils import run_commander, random_name
 
 

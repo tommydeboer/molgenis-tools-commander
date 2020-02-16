@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from mcmd.molgenis.service.system import Group
+from mcmd.molgenis.model.system import Group
 from tests.integration.commands.test_add_group import group_by_name_query
 from tests.integration.utils import run_commander, entity_type_exists, entity_is_empty, package_exists, random_name
 

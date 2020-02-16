@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from mcmd.molgenis.service.system import Role, RoleMembership, User
+from mcmd.molgenis.model.system import Role, RoleMembership, User
 from tests.integration.utils import run_commander, random_name
 
 

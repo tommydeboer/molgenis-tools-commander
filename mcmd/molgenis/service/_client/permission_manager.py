@@ -3,7 +3,7 @@ from urllib.parse import urljoin
 from mcmd.molgenis.service._client import api
 from mcmd.molgenis.service._client.client import post_form
 from mcmd.molgenis.service.permissions import Permission
-from mcmd.molgenis.service.system import User, Role, EntityType, Package, Plugin
+from mcmd.molgenis.model.system import User, Role, EntityType, Package, Plugin
 
 
 def grant_user_entity_type_permission(user: User, permission: Permission, entity_type: EntityType):

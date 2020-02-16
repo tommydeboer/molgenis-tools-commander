@@ -20,7 +20,7 @@ from mcmd.io import io, ask
 from mcmd.io.io import highlight
 from mcmd.molgenis.service import security
 from mcmd.molgenis.service.security import transform_role_name
-from mcmd.molgenis.service.system import User, Group, Role, Principal
+from mcmd.molgenis.model.system import User, Group, Role, Principal
 from mcmd.molgenis.service.version import get_version
 
 

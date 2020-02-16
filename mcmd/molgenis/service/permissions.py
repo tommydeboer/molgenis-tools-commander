@@ -1,7 +1,7 @@
 from enum import Enum
 
 from mcmd.molgenis.service._client import permission_manager
-from mcmd.molgenis.service.system import User, Role, Principal, PermissableResource, EntityType, Package, Plugin, Entity
+from mcmd.molgenis.model.system import User, Role, Principal, PermissableResource, EntityType, Package, Plugin, Entity
 
 
 class Permission(Enum):

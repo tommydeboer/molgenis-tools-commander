@@ -13,7 +13,7 @@ from mcmd.molgenis.resources import detect_resource_type, ensure_resource_exists
 # =========
 # Arguments
 # =========
-from mcmd.molgenis.service.system import EntityType, Package
+from mcmd.molgenis.model.system import EntityType, Package
 
 
 @arguments('delete')
