@@ -1,18 +1,16 @@
-from urllib.parse import urljoin
-
 import mcmd.io.ask
-import mcmd.molgenis.service._client.client as client
 from mcmd.commands._registry import arguments
 from mcmd.core.command import command
 from mcmd.io import io
 from mcmd.io.io import highlight
+from mcmd.molgenis.model.system import EntityType, Package, SystemEntityType, Group
+from mcmd.molgenis.resources import ResourceType
+from mcmd.molgenis.service import resources, security
+
+
 # =========
 # Arguments
 # =========
-from mcmd.molgenis.model.system import EntityType, Package
-from mcmd.molgenis.resources import detect_resource_type, ensure_resource_exists, ResourceType
-from mcmd.molgenis.service import resources
-from mcmd.molgenis.service._client import api
 
 
 @arguments('delete')
@@ -61,108 +59,80 @@ def add_arguments(subparsers):
 
 @command
 def delete(args):
-    resource_type = _get_resource_type(args)
-    if resource_type is ResourceType.ENTITY_TYPE:
+    resource = _get_resource(args)
+    if isinstance(resource, EntityType):
         if args.data:
-            _delete_entity_type_data(args)
+            _delete_entity_type_data(entity_type=resource, force=args.force)
         elif args.attribute:
-            _delete_entity_type_attribute(args)
+            _delete_entity_type_attribute(entity_type=resource,
+                                          attribute_name=args.attribute,
+                                          force=args.force)
         else:
-            _delete_entity_type(args)
-    elif resource_type is ResourceType.PACKAGE:
+            _delete_entity_type(entity_type=resource, force=args.force)
+    elif isinstance(resource, Package):
         if args.contents:
-            _delete_package_contents(args)
+            _delete_package_contents(package=resource, force=args.force)
         else:
-            _delete_package(args)
-    elif resource_type is ResourceType.GROUP:
-        _delete_group(args)
+            _delete_package(package=resource, force=args.force)
+    elif isinstance(resource, Group):
+        _delete_group(group=resource, force=args.force)
 
 
-def _delete_entity_type(args):
-    if args.force or (not args.force and mcmd.io.ask.confirm(
-            'Are you sure you want to delete entity type {} including its data?'.format(args.resource))):
-        io.start('Deleting entity type {}'.format(highlight(args.resource)))
-        _delete_rows(EntityType.meta.id, [args.resource])
+def _delete_entity_type(entity_type: EntityType, force: bool):
+    if force or (not force and mcmd.io.ask.confirm(
+            'Are you sure you want to delete entity type {} including its data?'.format(entity_type.id))):
+        io.start('Deleting entity type {}'.format(highlight(entity_type.id)))
+        resources.delete_entity_type(entity_type)
 
 
-def _delete_entity_type_data(args):
-    if args.force or (not args.force and mcmd.io.ask.confirm(
-            'Are you sure you want to delete all data in entity type {}?'.format(args.resource))):
-        io.start('Deleting all data from entity {}'.format(highlight(args.resource)))
-        resources.delete_entity_type_data(args.resource)
+def _delete_entity_type_data(entity_type: EntityType, force: bool):
+    if force or (not force and mcmd.io.ask.confirm(
+            'Are you sure you want to delete all data in entity type {}?'.format(entity_type.id))):
+        io.start('Deleting all data from entity {}'.format(highlight(entity_type.id)))
+        resources.delete_entity_type_data(entity_type)
 
 
-def _delete_entity_type_attribute(args):
-    if args.force or (not args.force and mcmd.io.ask.confirm(
-            'Are you sure you want to delete attribute {} of entity type {}?'.format(args.attribute, args.resource))):
-        io.start('Deleting attribute {} of entity {}'.format(highlight(args.attribute), highlight(args.resource)))
-        response = client.get(api.rest2('sys_md_Attribute'),
-                              params={
-                                  'q': 'entity=={};name=={}'.format(args.resource,
-                                                                    args.attribute)
-                              })
-        attribute_id = response.json()['items'][0]['id']
-        client.delete(api.rest2('sys_md_Attribute/{}'.format(attribute_id)))
+def _delete_entity_type_attribute(entity_type: EntityType, attribute_name: str, force: bool):
+    if force or (not force and mcmd.io.ask.confirm(
+            'Are you sure you want to delete attribute {} of entity type {}?'.format(attribute_name, entity_type.id))):
+        io.start('Deleting attribute {} of entity {}'.format(highlight(attribute_name), highlight(entity_type.id)))
+        attribute = resources.get_attribute(entity_type, attribute_name)
+        resources.delete_attribute(attribute)
 
 
-def _delete_package(args):
-    if args.force or (not args.force and mcmd.io.ask.confirm(
-            'Are you sure you want to delete package {} and all of its contents?'.format(args.resource))):
-        io.start('Deleting package {}'.format(highlight(args.resource)))
-        _delete_rows(Package.meta.id, [args.resource])
+def _delete_package(package: Package, force: bool):
+    if force or (not force and mcmd.io.ask.confirm(
+            'Are you sure you want to delete package {} and all of its contents?'.format(package.id))):
+        io.start('Deleting package {}'.format(highlight(package.id)))
+        resources.delete_package(package)
 
 
-def _delete_package_contents(args):
-    if args.force or (not args.force and mcmd.io.ask.confirm(
-            'Are you sure you want to delete the contents of package {}?'.format(args.resource))):
-        io.start('Deleting contents of package {}'.format(highlight(args.resource)))
-        _delete_entity_types_in_package(args.resource)
-        _delete_packages_in_package(args.resource)
+def _delete_package_contents(package: Package, force: bool):
+    if force or (not force and mcmd.io.ask.confirm(
+            'Are you sure you want to delete the contents of package {}?'.format(package.id))):
+        io.start('Deleting contents of package {}'.format(highlight(package.id)))
+        resources.delete_package_contents(package)
 
 
-def _delete_entity_types_in_package(package_id):
-    response = client.get(api.rest2(EntityType.meta.id),
-                          params={
-                              'attrs': 'id',
-                              'q': 'package==' + package_id
-                          })
-    entity_ids = [entity_type['id'] for entity_type in response.json()['items']]
-    if len(entity_ids) > 0:
-        _delete_rows(EntityType.meta.id, entity_ids)
+def _delete_group(group: Group, force: bool):
+    if force or (not force and mcmd.io.ask.confirm(
+            'Are you sure you want to delete group {}?'.format(group.name))):
+        io.start('Deleting group {}'.format(highlight(group.name)))
+        security.delete_group(group)
 
 
-def _delete_packages_in_package(package_id):
-    response = client.get(api.rest2(Package.meta.id),
-                          params={
-                              'attrs': 'id',
-                              'q': 'parent==' + package_id
-                          })
-    package_ids = [entity_type['id'] for entity_type in response.json()['items']]
-    if len(package_ids) > 0:
-        _delete_rows(Package.meta.id, package_ids)
-
-
-def _delete_group(args):
-    if args.force or (not args.force and mcmd.io.ask.confirm(
-            'Are you sure you want to delete group {}?'.format(args.resource))):
-        io.start('Deleting group {}'.format(highlight(args.resource)))
-        client.delete(urljoin(api.group(), args.resource))
-
-
-def _delete_rows(entity_type, rows):
-    client.delete_data(api.rest2(entity_type), rows)
-
-
-def _get_resource_type(args):
+def _get_resource(args) -> SystemEntityType:
     resource_id = args.resource
     if args.entity_type:
-        ensure_resource_exists(resource_id, ResourceType.ENTITY_TYPE)
-        return ResourceType.ENTITY_TYPE
+        return resources.get_entity_type(resource_id)
     elif args.package:
-        ensure_resource_exists(resource_id, ResourceType.PACKAGE)
-        return ResourceType.PACKAGE
+        return resources.get_package(resource_id)
     elif args.group:
-        ensure_resource_exists(resource_id, ResourceType.GROUP)
-        return ResourceType.GROUP
+        return security.get_group(resource_id)
     else:
-        return detect_resource_type(resource_id, [ResourceType.ENTITY_TYPE, ResourceType.PACKAGE, ResourceType.GROUP])
+        entity_type = resources.get_entity_type_or_none(resource_id)
+        package = resources.get_package_or_none(resource_id)
+        group = security.get_group_or_none(resource_id)
+
+        return resources.detect_resource_type(resource_id,
+                                              [ResourceType.ENTITY_TYPE, ResourceType.PACKAGE, ResourceType.GROUP])

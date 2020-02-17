@@ -17,7 +17,11 @@ class Meta(NamedTuple):
     name: str
 
 
-class Group(NamedTuple):
+class SystemEntityType(NamedTuple):
+    meta: Meta
+
+
+class Group(SystemEntityType):
     id: str
     name: str
 
@@ -25,7 +29,7 @@ class Group(NamedTuple):
                 name='Group')
 
 
-class User(NamedTuple, Principal):
+class User(SystemEntityType, Principal):
     id: str
     username: str
 
@@ -33,7 +37,7 @@ class User(NamedTuple, Principal):
                 name='User')
 
 
-class Role(NamedTuple, Principal):
+class Role(SystemEntityType, Principal):
     id: str
     name: str
     label: str
@@ -43,7 +47,7 @@ class Role(NamedTuple, Principal):
                 name='Role')
 
 
-class RoleMembership(NamedTuple):
+class RoleMembership(SystemEntityType):
     id: str
     user: User
     role: Role
@@ -52,15 +56,16 @@ class RoleMembership(NamedTuple):
                 name='RoleMembership')
 
 
-class EntityType(NamedTuple, PermissableResource):
+class EntityType(SystemEntityType, PermissableResource):
     id: str
 
     meta = Meta(id='sys_md_EntityType',
                 name='EntityType')
 
 
-class Attribute(NamedTuple):
+class Attribute(SystemEntityType):
     id: str
+    name: str
 
     meta = Meta(id='sys_md_Attribute',
                 name='Attribute')
@@ -72,7 +77,7 @@ class Package:
 
 
 # noinspection PyRedeclaration
-class Package(NamedTuple, PermissableResource):
+class Package(SystemEntityType, PermissableResource):
     id: str
     parent: Optional[Package]
 
@@ -80,7 +85,7 @@ class Package(NamedTuple, PermissableResource):
                 name='Package')
 
 
-class Plugin(NamedTuple, PermissableResource):
+class Plugin(SystemEntityType, PermissableResource):
     id: str
 
     meta = Meta(id='sys_Plugin',

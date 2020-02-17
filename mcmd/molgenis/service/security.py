@@ -5,10 +5,11 @@ from urllib.parse import urljoin
 from mcmd.core.compatibility import version
 from mcmd.core.errors import McmdError
 from mcmd.io import ask
-from mcmd.molgenis.service._client import api
-from mcmd.molgenis.service._client.client import get, post, put
-from mcmd.molgenis.service._client.rest_api_v2_mapper import map_to_role, map_to_user, map_to_role_membership, map_to_group
 from mcmd.molgenis.model.system import Group, Role, User, RoleMembership, Principal
+from mcmd.molgenis.service._client import api
+from mcmd.molgenis.service._client.client import get, post, put, delete
+from mcmd.molgenis.service._client.rest_api_v2_mapper import map_to_role, map_to_user, map_to_role_membership, \
+    map_to_group
 from mcmd.utils.time import timestamp
 
 
@@ -127,6 +128,14 @@ def get_roles(role_names: List[str]) -> List[Role]:
 
 
 def get_group(group_name: str) -> Group:
+    group = get_group_or_none(group_name)
+    if not group:
+        raise McmdError('No group found with name {}'.format(transform_group_name(group_name)))
+    else:
+        return group
+
+
+def get_group_or_none(group_name: str) -> Optional[Group]:
     group_name = transform_group_name(group_name)
     groups = get(api.rest2(Group.meta.id),
                  params={
@@ -134,7 +143,7 @@ def get_group(group_name: str) -> Group:
                      'q': 'name=={}'.format(group_name)
                  }).json()['items']
     if len(groups) == 0:
-        raise McmdError('No group found with name {}'.format(groups))
+        return None
     else:
         return map_to_group(groups[0])
 
@@ -222,6 +231,10 @@ def include_group_role(role: Role, group_role: Role):
 
     include = {'role': group_role.name}
     put(api.role(group_role.group.name, role.name), data=json.dumps(include))
+
+
+def delete_group(group: Group):
+    delete(urljoin(api.group(), group.name))
 
 
 @version('7.0.0')
