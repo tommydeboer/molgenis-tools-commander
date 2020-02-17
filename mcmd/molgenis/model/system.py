@@ -59,8 +59,22 @@ class EntityType(NamedTuple, PermissableResource):
                 name='EntityType')
 
 
+class Attribute(NamedTuple):
+    id: str
+
+    meta = Meta(id='sys_md_Attribute',
+                name='Attribute')
+
+
+class Package:
+    # forward declaration so Package can reference itself
+    pass
+
+
+# noinspection PyRedeclaration
 class Package(NamedTuple, PermissableResource):
     id: str
+    parent: Optional[Package]
 
     meta = Meta(id='sys_md_Package',
                 name='Package')

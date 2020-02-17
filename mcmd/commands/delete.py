@@ -6,14 +6,13 @@ from mcmd.commands._registry import arguments
 from mcmd.core.command import command
 from mcmd.io import io
 from mcmd.io.io import highlight
-from mcmd.molgenis.service._client import api
-from mcmd.molgenis.resources import detect_resource_type, ensure_resource_exists, ResourceType
-
-
 # =========
 # Arguments
 # =========
 from mcmd.molgenis.model.system import EntityType, Package
+from mcmd.molgenis.resources import detect_resource_type, ensure_resource_exists, ResourceType
+from mcmd.molgenis.service import resources
+from mcmd.molgenis.service._client import api
 
 
 @arguments('delete')
@@ -90,7 +89,7 @@ def _delete_entity_type_data(args):
     if args.force or (not args.force and mcmd.io.ask.confirm(
             'Are you sure you want to delete all data in entity type {}?'.format(args.resource))):
         io.start('Deleting all data from entity {}'.format(highlight(args.resource)))
-        client.delete(api.rest1(args.resource))
+        resources.delete_entity_type_data(args.resource)
 
 
 def _delete_entity_type_attribute(args):

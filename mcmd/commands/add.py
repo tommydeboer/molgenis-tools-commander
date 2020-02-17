@@ -9,11 +9,10 @@ from mcmd.core.context import context
 from mcmd.core.errors import McmdError
 from mcmd.io import io
 from mcmd.io.io import highlight
-from mcmd.molgenis.service import security
+from mcmd.molgenis.service import security, resources
 from mcmd.molgenis.service._client import api
-from mcmd.molgenis.service._client.client import post, post_files
+from mcmd.molgenis.service._client.client import post_files
 from mcmd.molgenis.service.security import transform_role_name
-from mcmd.molgenis.model.system import Package
 from mcmd.utils.file_helpers import get_file_name_from_path, scan_folders_for_files, select_path
 
 # Store a reference to the parser so that we can show an error message for the custom validation rule
@@ -192,14 +191,8 @@ def add_group(args):
 @command
 def add_package(args):
     io.start('Adding package %s' % highlight(args.id))
-
-    data = {'id': args.id,
-            'label': args.id}
-
-    if args.parent:
-        data['parent'] = args.parent
-
-    post(api.rest1(Package.meta.id), data=data)
+    parent = resources.get_package(args.parent) if args.parent else None
+    resources.add_package(args.id, parent)
 
 
 @command
