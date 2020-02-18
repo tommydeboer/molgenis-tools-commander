@@ -5,19 +5,14 @@ principal doesn't exist, the program will terminate.
 """
 import textwrap
 from argparse import RawDescriptionHelpFormatter
-from urllib.parse import urljoin
 
 from mcmd.commands._registry import arguments
 from mcmd.core.command import command
 from mcmd.io import io
 from mcmd.io.io import highlight
-from mcmd.molgenis.resources import detect_resource_type, ensure_resource_exists, ResourceType
-from mcmd.molgenis.service import security
-from mcmd.molgenis.service._client import api
-from mcmd.molgenis.service._client.client import post_form
-from mcmd.molgenis.model.system import Principal, User, Role
-
-
+from mcmd.molgenis.model.system import Principal, PermissableResource, Permission
+from mcmd.molgenis.resources import detect_resource_type, ResourceType
+from mcmd.molgenis.service import security, resources, permissions
 # =========
 # Arguments
 # =========
@@ -95,47 +90,33 @@ def give(args):
         args.permission = _PERMISSION_SYNONYMS[args.permission]
 
     # The PermissionManagerController always gives 200 OK so we need to validate everything ourselves
-    resource_type = _get_resource_type(args)
     principal = security.get_principal(is_user=args.user,
                                        is_role=args.role,
                                        principal_name=args.receiver)
+    resource = _get_resource(args)
+    permission = Permission[args.permission]
 
-    _grant(principal, resource_type, args.resource, args.permission)
+    _grant(principal, permission, resource)
 
 
-def _grant(principal: Principal, resource_type, identifier, permission):
-    data = {'radio-' + identifier: permission}
-
-    if isinstance(principal, User):
-        # TODO use upcoming principal.name
-        principal_name = principal.username
-        data['username'] = principal_name
-    elif isinstance(principal, Role):
-        principal_name = principal.name
-        data['rolename'] = principal_name
-    else:
-        raise ValueError("unknown principal type")
-
+def _grant(principal: Principal, permission: Permission, resource: PermissableResource):
     io.start('Giving {} {} permission to {} on {} {}'.format(principal.meta.name.lower(),
-                                                             highlight(principal_name),
-                                                             highlight(permission),
-                                                             resource_type.get_label().lower(),
-                                                             highlight(identifier)))
+                                                             highlight(principal.name),
+                                                             highlight(permission.value()),
+                                                             resource.meta.name.lower(),
+                                                             highlight(resource.id)))
 
-    url = urljoin(api.permissions(), '{}/{}'.format(resource_type.get_resource_name(), principal.meta.name.lower()))
-    post_form(url, data)
+    permissions.give_permission(principal, permission, resource)
 
 
-def _get_resource_type(args):
+def _get_resource(args) -> PermissableResource:
     resource_id = args.resource
     if args.entity_type:
-        ensure_resource_exists(resource_id, ResourceType.ENTITY_TYPE)
-        return ResourceType.ENTITY_TYPE
+        return resources.get_entity_type(resource_id)
     elif args.package:
-        ensure_resource_exists(resource_id, ResourceType.PACKAGE)
-        return ResourceType.PACKAGE
+        return resources.get_package(resource_id)
     elif args.plugin:
-        ensure_resource_exists(resource_id, ResourceType.PLUGIN)
-        return ResourceType.PLUGIN
+        # TODO get plugin
+        pass
     else:
         return detect_resource_type(resource_id, [ResourceType.ENTITY_TYPE, ResourceType.PACKAGE, ResourceType.PLUGIN])
