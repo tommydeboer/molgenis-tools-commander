@@ -12,10 +12,10 @@ from mcmd.core.command import command
 from mcmd.io import io
 from mcmd.io.io import highlight
 from mcmd.molgenis.resources import detect_resource_type, ensure_resource_exists, ResourceType
-from mcmd.molgenis.service import security
-from mcmd.molgenis.service._client import api
-from mcmd.molgenis.service._client.client import post_form
-from mcmd.molgenis.service.system import Principal, User, Role
+from mcmd.molgenis import security
+from mcmd.molgenis.client import api
+from mcmd.molgenis.client.client import post_form
+from mcmd.molgenis.model.system import Principal, User, Role
 
 
 # =========

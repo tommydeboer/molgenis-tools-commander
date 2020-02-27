@@ -18,10 +18,10 @@ from mcmd.core.compatibility import version
 from mcmd.core.errors import McmdError
 from mcmd.io import io, ask
 from mcmd.io.io import highlight
-from mcmd.molgenis.service import security
-from mcmd.molgenis.service.security import transform_role_name
-from mcmd.molgenis.service.system import User, Group, Role, Principal
-from mcmd.molgenis.service.version import get_version
+from mcmd.molgenis import security
+from mcmd.molgenis.security import transform_role_name
+from mcmd.molgenis.model.system import User, Group, Role, Principal
+from mcmd.molgenis.version import get_version
 
 
 # =========

@@ -4,8 +4,8 @@ from mcmd.io import ask
 from mcmd.io import io
 from mcmd.io.io import highlight
 from mcmd.molgenis.resources import ensure_resource_exists, ResourceType
-from mcmd.molgenis.service._client import api
-from mcmd.molgenis.service._client.client import post, put
+from mcmd.molgenis.client import api
+from mcmd.molgenis.client.client import post, put
 
 
 # =========

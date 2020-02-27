@@ -12,7 +12,7 @@ import mcmd.io.ask
 from mcmd.config import config
 from mcmd.core.errors import McmdError, MolgenisOfflineError
 from mcmd.io import io
-from mcmd.molgenis.service._client import api
+from mcmd.molgenis.client import api
 
 _username = None
 _password = None

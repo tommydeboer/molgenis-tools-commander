@@ -5,10 +5,10 @@ from urllib.parse import urljoin
 from mcmd.core.compatibility import version
 from mcmd.core.errors import McmdError
 from mcmd.io import ask
-from mcmd.molgenis.service._client import api
-from mcmd.molgenis.service._client.client import get, post, put
-from mcmd.molgenis.service.rest_api_v2_mapper import map_to_role, map_to_user, map_to_role_membership, map_to_group
-from mcmd.molgenis.service.system import Group, Role, User, RoleMembership, Principal
+from mcmd.molgenis.client import api
+from mcmd.molgenis.client.client import get, post, put
+from mcmd.molgenis.client.rest_api_v2_mapper import map_to_role, map_to_user, map_to_role_membership, map_to_group
+from mcmd.molgenis.model.system import Group, Role, User, RoleMembership, Principal
 from mcmd.utils.time import timestamp
 
 
